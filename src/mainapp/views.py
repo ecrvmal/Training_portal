@@ -139,7 +139,6 @@ class CourseDetailPageView(CommonContextMixin, TemplateView):
         logger.debug("Yet another log message")
         context = super().get_context_data(**kwargs)
         course = get_object_or_404(Course, pk=pk)
-
         context["course"] = course
 
         context["all_lessons"] = (
@@ -161,7 +160,12 @@ class CourseDetailPageView(CommonContextMixin, TemplateView):
             context["feedback_form"] = mainapp_forms.CourseFeedbackForm(
                 course=context["course"], user=self.request.user
             )
+        if self.request.user.is_authenticated:
+            the_student = get_object_or_404(User, pk=self.request.user.id)
+            the_student.course_id = course.id
+            the_student.save()
         return context
+
 
 
 class CourseFeedbackFormView(LoginRequiredMixin, CreateView):
